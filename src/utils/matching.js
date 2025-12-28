@@ -48,7 +48,7 @@ export const loadDatabases = async () => {
 
 export const findPerfume = (query) => {
   if (!fuse) return [];
-  return fuse.search(query).map(result => result.item).slice(0, 5); // Return top 5 matches
+  return fuse.search(query).map(result => result.item).slice(0, 12); // Return top 12 matches
 };
 
 const getNotesSet = (item, isSahar = false) => {
