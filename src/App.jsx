@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Loader2 } from 'lucide-react';
+import { Search, Sparkles, Loader2, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { loadDatabases, findPerfume, getRecommendations } from './utils/matching';
 import PerfumeCard from './components/PerfumeCard';
@@ -32,9 +32,17 @@ function App() {
     }
   };
 
+  const clearSearch = () => {
+    setQuery('');
+    setSearchResults([]);
+    setIsSearching(false);
+    setSelectedPerfume(null);
+    setRecommendations([]);
+  };
+
   const handleSelect = (perfume) => {
     setSelectedPerfume(perfume);
-    setQuery(perfume.Perfume); // Set input to selected name
+    setQuery(perfume.Perfume);
     setIsSearching(false);
     const recs = getRecommendations(perfume);
     setRecommendations(recs);
@@ -42,93 +50,149 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center text-white">
-        <Loader2 className="w-10 h-10 animate-spin text-amber-400" />
-        <span className="ml-3 text-xl font-light">Loading Fragrances...</span>
+      <div className="min-h-screen bg-[var(--color-bg-main)] flex flex-col items-center justify-center text-white">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        >
+          <Loader2 className="w-12 h-12 text-[var(--color-accent-gold)]" />
+        </motion.div>
+        <motion.span 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-4 text-xl font-light tracking-widest text-[var(--color-accent-gold)] uppercase"
+        >
+          Curating Scents
+        </motion.span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white font-sans selection:bg-amber-500 selection:text-white pb-20">
-      <div className="max-w-4xl mx-auto px-4 pt-20">
+    <div className="min-h-screen bg-[var(--color-bg-main)] text-[var(--color-text-primary)] font-sans selection:bg-[var(--color-accent-gold)] selection:text-black pb-20 overflow-x-hidden relative">
+      
+      {/* Background Elements */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-900/10 rounded-full blur-[120px]" />
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 pt-12 md:pt-24 relative z-10">
         
         {/* Header */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center mb-12 md:mb-20"
         >
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-400 font-playfair">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="inline-block mb-4"
+          >
+            <Sparkles className="w-8 h-8 text-[var(--color-accent-gold)] mx-auto mb-2 opacity-80" />
+          </motion.div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-gradient-gold font-playfair tracking-tight">
             SaharScents
           </h1>
-          <p className="text-lg text-gray-300 font-light tracking-wide">
-            Discover your perfect scent match
+          <p className="text-lg md:text-xl text-[var(--color-text-secondary)] font-light tracking-wide max-w-lg mx-auto">
+            Discover your signature scent through the art of fragrance matching.
           </p>
         </motion.div>
 
         {/* Search Section */}
-        <div className="relative max-w-2xl mx-auto mb-16 z-50">
-          <div className="relative">
-            <input
-              type="text"
-              value={query}
-              onChange={handleSearch}
-              placeholder="Enter a perfume you love (e.g., J'adore)..."
-              className="w-full bg-white/10 backdrop-blur-xl border border-white/20 rounded-full py-4 pl-14 pr-6 text-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400/50 shadow-2xl transition-all"
-            />
-            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 w-6 h-6" />
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="relative max-w-2xl mx-auto mb-16 z-50"
+        >
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-purple-600 rounded-full opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 blur"></div>
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={query}
+                onChange={handleSearch}
+                placeholder="Search for a perfume you love..."
+                className="w-full bg-[var(--color-bg-secondary)]/80 backdrop-blur-xl border border-white/10 rounded-full py-4 md:py-5 pl-14 pr-12 text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]/50 shadow-2xl transition-all"
+              />
+              <Search className="absolute left-5 text-gray-400 w-6 h-6" />
+              {query && (
+                <button 
+                  onClick={clearSearch}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Search Dropdown */}
           <AnimatePresence>
             {isSearching && searchResults.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute top-full left-0 right-0 mt-2 bg-slate-800/90 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50"
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.2 }}
+                className="absolute top-full left-0 right-0 mt-4 bg-[var(--color-bg-secondary)]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 max-h-[60vh] overflow-y-auto custom-scrollbar"
               >
                 {searchResults.map((result, idx) => (
-                  <button
+                  <motion.button
                     key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.05 }}
                     onClick={() => handleSelect(result)}
-                    className="w-full text-left px-6 py-4 hover:bg-white/10 transition-colors border-b border-white/5 last:border-0 flex flex-col"
+                    className="w-full text-left px-6 py-4 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 flex flex-col group"
                   >
-                    <span className="font-medium text-amber-100">{result.Perfume}</span>
-                    <span className="text-sm text-gray-400">{result.Brand} • {result.Gender}</span>
-                  </button>
+                    <span className="font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent-gold)] transition-colors text-lg">{result.Perfume}</span>
+                    <span className="text-sm text-[var(--color-text-secondary)] mt-1">{result.Brand} • {result.Gender}</span>
+                  </motion.button>
                 ))}
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </motion.div>
 
         {/* Results Section */}
         <AnimatePresence mode="wait">
           {selectedPerfume && (
             <motion.div
               key={selectedPerfume.Perfume}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
             >
               <div className="text-center mb-12">
-                <p className="text-gray-400 mb-2 uppercase tracking-widest text-xs">Based on your selection</p>
-                <h2 className="text-3xl font-playfair text-white">
-                  {selectedPerfume.Perfume} <span className="text-gray-500 text-xl">by {selectedPerfume.Brand}</span>
+                <motion.div 
+                  initial={{ width: 0 }} 
+                  animate={{ width: "100px" }} 
+                  className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                />
+                <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">Perfect Matches For</p>
+                <h2 className="text-3xl md:text-4xl font-playfair text-white capitalize">
+                  {selectedPerfume.Perfume}
                 </h2>
+                <p className="text-[var(--color-text-secondary)] mt-2 text-lg">by {selectedPerfume.Brand}</p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-10">
                 {recommendations.map((rec, idx) => (
                   <PerfumeCard key={idx} perfume={rec} delay={idx * 0.2} />
                 ))}
               </div>
 
               {recommendations.length === 0 && (
-                <div className="text-center text-gray-400 mt-8">
-                  <p>No close matches found. Try another perfume!</p>
+                <div className="text-center text-gray-400 mt-12 glass-panel p-8 rounded-2xl max-w-md mx-auto">
+                  <p className="text-lg">We couldn't find a direct match in our collection yet.</p>
+                  <p className="text-sm mt-2">Try searching for another favorite!</p>
                 </div>
               )}
             </motion.div>
