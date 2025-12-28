@@ -85,20 +85,20 @@ function App() {
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-12 md:mb-20"
+          className="text-center mb-12 md:mb-16"
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="inline-block mb-4"
+            className="inline-block mb-6"
           >
-            <Sparkles className="w-8 h-8 text-[var(--color-accent-gold)] mx-auto mb-2 opacity-80" />
+            <Sparkles className="w-10 h-10 text-[var(--color-accent-gold)] mx-auto opacity-90 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
           </motion.div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 text-gradient-gold font-playfair tracking-tight">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gradient-gold font-playfair tracking-tight leading-tight">
             SaharScents
           </h1>
-          <p className="text-lg md:text-xl text-[var(--color-text-secondary)] font-light tracking-wide max-w-lg mx-auto">
+          <p className="text-base md:text-lg text-[var(--color-text-secondary)] font-light tracking-wide max-w-lg mx-auto leading-relaxed">
             Discover your signature scent through the art of fragrance matching.
           </p>
         </motion.div>

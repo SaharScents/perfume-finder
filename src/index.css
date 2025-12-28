@@ -8,11 +8,12 @@
   font-family: 'Outfit', system-ui, sans-serif;
   
   /* Premium Dark Palette */
-  --color-bg-main: #0f172a; /* Slate 900 */
-  --color-bg-secondary: #1e293b; /* Slate 800 */
+  --color-bg-main: #0a0f1c; /* Darker, richer blue-black */
+  --color-bg-secondary: #162032; /* Slightly lighter for contrast */
   --color-accent-gold: #fbbf24; /* Amber 400 */
+  --color-accent-gold-dim: #b4860b; /* DarkGoldenRod for borders/subtle text */
   --color-text-primary: #f8fafc; /* Slate 50 */
-  --color-text-secondary: #94a3b8; /* Slate 400 */
+  --color-text-secondary: #cbd5e1; /* Slate 300 - lighter for better readability */
 }
 
 body {
@@ -20,8 +21,12 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background-color: var(--color-bg-main);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(251, 191, 36, 0.03) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.03) 0%, transparent 25%);
   color: var(--color-text-primary);
   overflow-x: hidden;
+  line-height: 1.6;
 }
 
 .font-playfair {
@@ -29,15 +34,32 @@ body {
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 }
 
 .text-gradient-gold {
-  background: linear-gradient(to right, #fcd34d, #fbbf24, #d97706);
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-shadow: 0px 2px 10px rgba(251, 191, 36, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
