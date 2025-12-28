@@ -13,7 +13,10 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
   const baseNotes = splitNotes(perfume['Base Notes']);
 
   const NoteTag = ({ note }) => (
-    <span className="inline-flex items-center px-5 py-2.5 bg-white/5 hover:bg-white/10 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold text-gray-200 border border-white/10 transition-all duration-300 hover:border-[var(--color-accent-gold)]/30 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)]">
+    <span 
+      className="inline-block bg-white/5 hover:bg-white/10 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold text-gray-200 border border-white/10 transition-all duration-300 hover:border-[var(--color-accent-gold)]/30 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)] mb-2 mr-2"
+      style={{ padding: '8px 24px' }}
+    >
       {note}
     </span>
   );
