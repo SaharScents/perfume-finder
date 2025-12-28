@@ -11,6 +11,67 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
   const midNotes = splitNotes(perfume['Middle Notes']);
   const baseNotes = splitNotes(perfume['Base Notes']);
 
+  // Calculate match percentage (score is 0-1, convert to 0-100)
+  const matchPercentage = perfume.score ? Math.round(perfume.score * 100) : 0;
+
+  // Determine color based on percentage
+  const getMatchColor = (percentage) => {
+    if (percentage >= 70) return '#22c55e'; // Green
+    if (percentage >= 40) return '#eab308'; // Yellow
+    return '#ef4444'; // Red
+  };
+
+  const matchColor = getMatchColor(matchPercentage);
+
+  // SVG Ring component
+  const MatchRing = () => {
+    const size = 56;
+    const strokeWidth = 4;
+    const radius = (size - strokeWidth) / 2;
+    const circumference = 2 * Math.PI * radius;
+    const progress = (matchPercentage / 100) * circumference;
+
+    return (
+      <div style={{ position: 'relative', width: size, height: size }}>
+        <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
+          {/* Background ring */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="rgba(255,255,255,0.1)"
+            strokeWidth={strokeWidth}
+          />
+          {/* Progress ring */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke={matchColor}
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference - progress}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+          />
+        </svg>
+        <span style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontSize: '14px',
+          fontWeight: '700',
+          color: matchColor
+        }}>
+          {matchPercentage}%
+        </span>
+      </div>
+    );
+  };
+
   const NoteTag = ({ note }) => (
     <span 
       style={{
@@ -61,25 +122,28 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
         backdropFilter: 'blur(12px)'
       }}
     >
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h3 style={{
-          fontSize: '22px',
-          fontWeight: '600',
-          color: '#fbbf24',
-          marginBottom: '6px',
-          fontFamily: "'Playfair Display', serif"
-        }}>
-          {perfume.Name}
-        </h3>
-        <span style={{
-          fontSize: '11px',
-          color: 'rgba(255,255,255,0.4)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em'
-        }}>
-          {perfume['Product Type'] || 'Perfume'}
-        </span>
+      {/* Header with Match Ring */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+        <div>
+          <h3 style={{
+            fontSize: '22px',
+            fontWeight: '600',
+            color: '#fbbf24',
+            marginBottom: '6px',
+            fontFamily: "'Playfair Display', serif"
+          }}>
+            {perfume.Name}
+          </h3>
+          <span style={{
+            fontSize: '11px',
+            color: 'rgba(255,255,255,0.4)',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em'
+          }}>
+            {perfume['Product Type'] || 'Perfume'}
+          </span>
+        </div>
+        <MatchRing />
       </div>
 
       {/* Notes Sections */}
