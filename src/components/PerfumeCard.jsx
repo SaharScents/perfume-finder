@@ -48,12 +48,9 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
           "{perfume.Description}"
         </p>
         
-        <div className="space-y-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
           <div className="group/note">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-full bg-blue-500/10">
-                <Wind className="w-4 h-4 text-blue-300" />
-              </div>
               <span className="text-xs font-bold text-blue-200 uppercase tracking-[0.2em]">Top Notes</span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -63,9 +60,6 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
           
           <div className="group/note">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-full bg-pink-500/10">
-                <Droplets className="w-4 h-4 text-pink-300" />
-              </div>
               <span className="text-xs font-bold text-pink-200 uppercase tracking-[0.2em]">Middle Notes</span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -75,9 +69,6 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
           
           <div className="group/note">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-full bg-amber-500/10">
-                <Mountain className="w-4 h-4 text-amber-300" />
-              </div>
               <span className="text-xs font-bold text-amber-200 uppercase tracking-[0.2em]">Base Notes</span>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -89,7 +80,7 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
         {perfume.matchNotes && perfume.matchNotes.length > 0 && (
           <div className="mt-8 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2 text-[var(--color-accent-gold)] mb-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Matched Notes</span>
+              <span className="text-[16px] font-bold uppercase tracking-[0.15em]">Matched Notes</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
               {perfume.matchNotes.join(', ')}
