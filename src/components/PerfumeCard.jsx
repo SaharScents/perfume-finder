@@ -89,7 +89,6 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
         {perfume.matchNotes && perfume.matchNotes.length > 0 && (
           <div className="mt-8 pt-5 border-t border-white/10">
             <div className="flex items-center gap-2 text-[var(--color-accent-gold)] mb-2">
-              <SparklesIcon className="w-4 h-4" />
               <span className="text-[10px] font-bold uppercase tracking-[0.15em]">Matched Notes</span>
             </div>
             <p className="text-sm text-gray-400 leading-relaxed">
@@ -101,11 +100,5 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
     </motion.div>
   );
 };
-
-const SparklesIcon = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-  </svg>
-);
 
 export default PerfumeCard;
