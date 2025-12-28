@@ -92,7 +92,7 @@ function App() {
             SaharScents
           </h1>
           <p className="text-base md:text-lg text-[var(--color-text-secondary)] font-light tracking-wide max-w-lg mx-auto leading-relaxed">
-            Discover your signature scent through the art of fragrance matching.
+            Find a scent that smells similar to SaharScents.
           </p>
         </motion.div>
 
@@ -128,7 +128,7 @@ function App() {
               type="text"
               value={query}
               onChange={handleSearch}
-              placeholder="Search for a perfume you love..."
+              placeholder="Search for a perfume..."
               style={{ 
                 width: '100%',
                 background: 'transparent',
@@ -226,7 +226,7 @@ function App() {
                 <p className="text-[var(--color-text-secondary)] mt-2 text-lg">by {selectedPerfume.Brand}</p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6 md:gap-10">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12">
                 {recommendations.map((rec, idx) => (
                   <PerfumeCard key={idx} perfume={rec} delay={idx * 0.2} />
                 ))}
