@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Droplets, Wind, Mountain, ArrowRight } from 'lucide-react';
 
 const PerfumeCard = ({ perfume, delay = 0 }) => {
   const splitNotes = (notesStr) => {
@@ -14,76 +13,107 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
 
   const NoteTag = ({ note }) => (
     <span 
-      className="inline-block bg-white/5 hover:bg-white/10 rounded-full text-[10px] uppercase tracking-[0.2em] font-bold text-gray-200 border border-white/10 transition-all duration-300 hover:border-[var(--color-accent-gold)]/30 hover:shadow-[0_0_15px_rgba(251,191,36,0.1)] mb-2 mr-2"
-      style={{ padding: '8px 24px' }}
+      style={{
+        display: 'inline-block',
+        padding: '6px 14px',
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '20px',
+        fontSize: '11px',
+        fontWeight: '500',
+        color: 'rgba(255,255,255,0.8)',
+        letterSpacing: '0.05em'
+      }}
     >
       {note}
     </span>
   );
 
+  const NoteSection = ({ label, notes }) => (
+    <div style={{ marginBottom: '20px' }}>
+      <span style={{
+        display: 'block',
+        fontSize: '10px',
+        fontWeight: '600',
+        color: 'rgba(255,255,255,0.4)',
+        textTransform: 'uppercase',
+        letterSpacing: '0.15em',
+        marginBottom: '10px'
+      }}>
+        {label}
+      </span>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+        {notes.map((note, i) => <NoteTag key={i} note={note} />)}
+      </div>
+    </div>
+  );
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay, ease: "easeOut" }}
-      whileHover={{ y: -5, transition: { duration: 0.2 } }}
-      className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden group h-full flex flex-col"
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      style={{
+        background: 'rgba(30, 41, 59, 0.6)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '20px',
+        padding: '28px',
+        backdropFilter: 'blur(12px)'
+      }}
     >
-      {/* Decorative gradient blob */}
-      <div className="absolute -top-20 -right-20 w-40 h-40 bg-[var(--color-accent-gold)]/10 rounded-full blur-3xl group-hover:bg-[var(--color-accent-gold)]/20 transition-all duration-500" />
-
-      <div className="relative z-10 flex-grow">
-        <div className="flex justify-between items-start mb-10">
-          <div className="pr-4">
-            <h3 className="text-2xl font-playfair font-bold text-[var(--color-accent-gold)] mb-2 leading-tight">
-              {perfume.Name}
-            </h3>
-            <span className="inline-block px-3 py-1 bg-[var(--color-accent-gold)]/10 text-[var(--color-accent-gold)] text-[10px] rounded-full tracking-[0.2em] uppercase font-bold">
-              {perfume['Product Type'] || 'Perfume'}
-            </span>
-          </div>
-        </div>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
-          <div className="group/note">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold text-blue-200 uppercase tracking-[0.2em]">Top Notes</span>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {topNotes.map((note, i) => <NoteTag key={i} note={note} />)}
-            </div>
-          </div>
-          
-          <div className="group/note">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold text-pink-200 uppercase tracking-[0.2em]">Middle Notes</span>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {midNotes.map((note, i) => <NoteTag key={i} note={note} />)}
-            </div>
-          </div>
-          
-          <div className="group/note">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-xs font-bold text-amber-200 uppercase tracking-[0.2em]">Base Notes</span>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              {baseNotes.map((note, i) => <NoteTag key={i} note={note} />)}
-            </div>
-          </div>
-        </div>
-
-        {perfume.matchNotes && perfume.matchNotes.length > 0 && (
-          <div className="mt-8 border-t border-white/10" style={{ paddingTop: '16px' }}>
-            <div className="flex items-center gap-2 text-[var(--color-accent-gold)] mb-2">
-              <span className="text-[16px] font-bold uppercase tracking-[0.15em]">Matched Notes</span>
-            </div>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              {perfume.matchNotes.join(', ')}
-            </p>
-          </div>
-        )}
+      {/* Header */}
+      <div style={{ marginBottom: '24px' }}>
+        <h3 style={{
+          fontSize: '22px',
+          fontWeight: '600',
+          color: '#fbbf24',
+          marginBottom: '6px',
+          fontFamily: "'Playfair Display', serif"
+        }}>
+          {perfume.Name}
+        </h3>
+        <span style={{
+          fontSize: '11px',
+          color: 'rgba(255,255,255,0.4)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em'
+        }}>
+          {perfume['Product Type'] || 'Perfume'}
+        </span>
       </div>
+
+      {/* Notes Sections */}
+      <NoteSection label="Top Notes" notes={topNotes} />
+      <NoteSection label="Middle Notes" notes={midNotes} />
+      <NoteSection label="Base Notes" notes={baseNotes} />
+
+      {/* Matched Notes */}
+      {perfume.matchNotes && perfume.matchNotes.length > 0 && (
+        <div style={{
+          marginTop: '24px',
+          paddingTop: '20px',
+          borderTop: '1px solid rgba(255,255,255,0.08)'
+        }}>
+          <span style={{
+            display: 'block',
+            fontSize: '11px',
+            fontWeight: '600',
+            color: '#fbbf24',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            marginBottom: '8px'
+          }}>
+            Matched Notes
+          </span>
+          <p style={{
+            fontSize: '13px',
+            color: 'rgba(255,255,255,0.6)',
+            lineHeight: '1.6'
+          }}>
+            {perfume.matchNotes.join(', ')}
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 };
