@@ -3,20 +3,17 @@ import Fuse from 'fuse.js';
 
 let perfumeDatabase = [];
 let saharDatabase = [];
-let noteFamilyMap = {}; // Maps note name -> family
 let fuse = null;
 
 export const loadDatabases = async () => {
   try {
-    const [perfumeResponse, saharResponse, familiesResponse] = await Promise.all([
+    const [perfumeResponse, saharResponse] = await Promise.all([
       fetch('/perfume-database.csv'),
-      fetch('/saharscents-database.csv'),
-      fetch('/perfume_note_families.csv')
+      fetch('/saharscents-database.csv')
     ]);
 
     const perfumeText = await perfumeResponse.text();
     const saharText = await saharResponse.text();
-    const familiesText = await familiesResponse.text();
 
     const perfumeResult = Papa.parse(perfumeText, {
       header: true,
@@ -32,23 +29,8 @@ export const loadDatabases = async () => {
       transformHeader: (header) => header.trim()
     });
 
-    const familiesResult = Papa.parse(familiesText, {
-      header: true,
-      delimiter: ',',
-      skipEmptyLines: true,
-      transformHeader: (header) => header.trim()
-    });
-
     perfumeDatabase = perfumeResult.data;
-    saharDatabase = saharResult.data.filter(item => item['Product Type'] === 'Perfume');
-
-    // Build note-to-family mapping (lowercase for easy lookup)
-    noteFamilyMap = {};
-    familiesResult.data.forEach(row => {
-      if (row.note && row.family) {
-        noteFamilyMap[row.note.toLowerCase().trim()] = row.family.trim();
-      }
-    });
+    saharDatabase = saharResult.data.filter(item => item['Product Type'] === 'Perfume'); // Filter only perfumes
 
     // Initialize Fuse for fuzzy search
     fuse = new Fuse(perfumeDatabase, {
@@ -57,7 +39,6 @@ export const loadDatabases = async () => {
       distance: 100
     });
 
-    console.log('Databases loaded. Note families:', Object.keys(noteFamilyMap).length);
     return true;
   } catch (error) {
     console.error('Error loading databases:', error);
@@ -67,71 +48,44 @@ export const loadDatabases = async () => {
 
 export const findPerfume = (query) => {
   if (!fuse) return [];
-  return fuse.search(query).map(result => result.item).slice(0, 15);
+  return fuse.search(query).map(result => result.item).slice(0, 15); // Return top 15 matches
 };
 
-// Convert notes string to a Set of families
-const getNoteFamilies = (notesStr) => {
-  if (!notesStr) return new Set();
-  const notes = notesStr.split(',').map(n => n.toLowerCase().trim()).filter(n => n);
-  const families = notes.map(note => noteFamilyMap[note] || null).filter(f => f);
-  return new Set(families);
+const getNotesSet = (item, isSahar = false) => {
+  let notes = [];
+  if (isSahar) {
+    if (item['Top Notes']) notes.push(...item['Top Notes'].split(','));
+    if (item['Middle Notes']) notes.push(...item['Middle Notes'].split(','));
+    if (item['Base Notes']) notes.push(...item['Base Notes'].split(','));
+  } else {
+    if (item['Top']) notes.push(...item['Top'].split(','));
+    if (item['Middle']) notes.push(...item['Middle'].split(','));
+    if (item['Base']) notes.push(...item['Base'].split(','));
+  }
+  
+  // Normalize: lowercase, trim
+  return new Set(notes.map(n => n.toLowerCase().trim()).filter(n => n));
 };
 
-// Calculate Jaccard similarity between two family sets
-const calculateFamilySimilarity = (setA, setB) => {
-  if (setA.size === 0 || setB.size === 0) return 0;
-  const intersection = new Set([...setA].filter(x => setB.has(x)));
-  const union = new Set([...setA, ...setB]);
-  return intersection.size / union.size;
-};
-
-// Weighted family-based matching: Top 30%, Middle 30%, Base 40%
-const calculateWeightedFamilyScore = (targetPerfume, saharPerfume) => {
-  // Get families for each layer - target perfume uses Top/Middle/Base, SaharScents uses Top Notes/Middle Notes/Base Notes
-  const targetTopFamilies = getNoteFamilies(targetPerfume['Top']);
-  const targetMidFamilies = getNoteFamilies(targetPerfume['Middle']);
-  const targetBaseFamilies = getNoteFamilies(targetPerfume['Base']);
-
-  const saharTopFamilies = getNoteFamilies(saharPerfume['Top Notes']);
-  const saharMidFamilies = getNoteFamilies(saharPerfume['Middle Notes']);
-  const saharBaseFamilies = getNoteFamilies(saharPerfume['Base Notes']);
-
-  // Calculate similarity for each layer
-  const topSimilarity = calculateFamilySimilarity(targetTopFamilies, saharTopFamilies);
-  const midSimilarity = calculateFamilySimilarity(targetMidFamilies, saharMidFamilies);
-  const baseSimilarity = calculateFamilySimilarity(targetBaseFamilies, saharBaseFamilies);
-
-  // Weighted score: Top 30%, Middle 30%, Base 40%
-  const weightedScore = (topSimilarity * 0.30) + (midSimilarity * 0.30) + (baseSimilarity * 0.40);
-
-  return weightedScore;
-};
-
-// Get matched families for display
-const getMatchedFamilies = (targetPerfume, saharPerfume) => {
-  const allTargetFamilies = new Set([
-    ...getNoteFamilies(targetPerfume['Top']),
-    ...getNoteFamilies(targetPerfume['Middle']),
-    ...getNoteFamilies(targetPerfume['Base'])
-  ]);
-
-  const allSaharFamilies = new Set([
-    ...getNoteFamilies(saharPerfume['Top Notes']),
-    ...getNoteFamilies(saharPerfume['Middle Notes']),
-    ...getNoteFamilies(saharPerfume['Base Notes'])
-  ]);
-
-  return [...allTargetFamilies].filter(f => allSaharFamilies.has(f));
+// New simpler algorithm: percentage of searched perfume's notes found in match
+const calculateMatchPercentage = (targetNotes, matchNotes) => {
+  if (targetNotes.size === 0) return 0;
+  
+  const commonNotes = [...targetNotes].filter(note => matchNotes.has(note));
+  
+  // Score = (common notes) / (notes in searched perfume)
+  return commonNotes.length / targetNotes.size;
 };
 
 export const getRecommendations = (targetPerfume) => {
   if (!targetPerfume || saharDatabase.length === 0) return [];
 
+  const targetNotes = getNotesSet(targetPerfume, false);
+
   const scored = saharDatabase.map(saharPerfume => {
-    const score = calculateWeightedFamilyScore(targetPerfume, saharPerfume);
-    const matchedFamilies = getMatchedFamilies(targetPerfume, saharPerfume);
-    return { ...saharPerfume, score, matchNotes: matchedFamilies };
+    const saharNotes = getNotesSet(saharPerfume, true);
+    const score = calculateMatchPercentage(targetNotes, saharNotes);
+    return { ...saharPerfume, score, matchNotes: [...targetNotes].filter(x => saharNotes.has(x)) };
   });
 
   // Sort by score descending
