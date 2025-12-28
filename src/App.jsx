@@ -87,14 +87,7 @@ function App() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center mb-12 md:mb-16"
         >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="inline-block mb-6"
-          >
-            <Sparkles className="w-10 h-10 text-[var(--color-accent-gold)] mx-auto opacity-90 filter drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
-          </motion.div>
+
           <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gradient-gold font-playfair tracking-tight leading-tight">
             SaharScents
           </h1>
@@ -108,28 +101,54 @@ function App() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="relative max-w-2xl mx-auto mb-16 z-50"
+          className="relative z-50"
+          style={{ maxWidth: '500px', margin: '0 auto 4rem auto', padding: '0 1rem' }}
         >
-          <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500 to-purple-600 rounded-full opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200 blur"></div>
-            <div className="relative flex items-center">
-              <input
-                type="text"
-                value={query}
-                onChange={handleSearch}
-                placeholder="Search for a perfume you love..."
-                className="w-full bg-[var(--color-bg-secondary)]/80 backdrop-blur-xl border border-white/10 rounded-full py-4 md:py-5 pl-14 pr-12 text-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-gold)]/50 shadow-2xl transition-all"
-              />
-              <Search className="absolute left-5 text-gray-400 w-6 h-6" />
-              {query && (
-                <button 
-                  onClick={clearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-white/10 rounded-full transition-colors text-gray-400 hover:text-white"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              )}
-            </div>
+          {/* Glow effect */}
+          <div 
+            className="absolute inset-0 rounded-2xl opacity-30 blur-xl"
+            style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.3), rgba(168,85,247,0.2))' }}
+          />
+          
+          {/* Search Input Container */}
+          <div 
+            className="relative"
+            style={{ 
+              background: 'rgba(30, 41, 59, 0.95)',
+              borderRadius: '16px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}
+          >
+            <Search 
+              className="absolute text-amber-400"
+              style={{ left: '20px', top: '50%', transform: 'translateY(-50%)', width: '20px', height: '20px' }}
+            />
+            <input
+              type="text"
+              value={query}
+              onChange={handleSearch}
+              placeholder="Search for a perfume you love..."
+              style={{ 
+                width: '100%',
+                background: 'transparent',
+                border: 'none',
+                outline: 'none',
+                padding: '18px 50px 18px 56px',
+                fontSize: '16px',
+                color: 'white',
+                borderRadius: '16px'
+              }}
+            />
+            {query && (
+              <button 
+                onClick={clearSearch}
+                className="absolute hover:bg-white/10 rounded-full transition-colors"
+                style={{ right: '16px', top: '50%', transform: 'translateY(-50%)', padding: '8px' }}
+              >
+                <X style={{ width: '16px', height: '16px', color: '#9ca3af' }} />
+              </button>
+            )}
           </div>
 
           {/* Search Dropdown */}
@@ -140,7 +159,20 @@ function App() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -10, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="absolute top-full left-0 right-0 mt-4 bg-[var(--color-bg-secondary)]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl z-50 max-h-[60vh] overflow-y-auto custom-scrollbar"
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: '12px',
+                  background: 'rgba(30, 41, 59, 0.98)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  boxShadow: '0 16px 48px rgba(0,0,0,0.4)',
+                  maxHeight: '300px',
+                  overflowY: 'auto'
+                }}
               >
                 {searchResults.map((result, idx) => (
                   <motion.button
@@ -149,10 +181,21 @@ function App() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     onClick={() => handleSelect(result)}
-                    className="w-full text-left px-6 py-4 hover:bg-white/5 transition-colors border-b border-white/5 last:border-0 flex flex-col group"
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      padding: '16px 20px',
+                      background: 'transparent',
+                      border: 'none',
+                      borderBottom: '1px solid rgba(255,255,255,0.05)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}
+                    className="hover:bg-white/10"
                   >
-                    <span className="font-medium text-[var(--color-text-primary)] group-hover:text-[var(--color-accent-gold)] transition-colors text-lg">{result.Perfume}</span>
-                    <span className="text-sm text-[var(--color-text-secondary)] mt-1">{result.Brand} • {result.Gender}</span>
+                    <span style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>{result.Perfume}</span>
+                    <span style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>{result.Brand} • {result.Gender}</span>
                   </motion.button>
                 ))}
               </motion.div>
