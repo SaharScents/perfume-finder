@@ -536,6 +536,39 @@ function App() {
                   <h2 className="text-3xl md:text-4xl font-playfair text-white capitalize">
                     {categoryPerfumes.length} Perfume{categoryPerfumes.length !== 1 ? 's' : ''} Found
                   </h2>
+                  
+                  {/* Perfume Names List */}
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap', 
+                      justifyContent: 'center',
+                      gap: '10px',
+                      marginTop: '20px',
+                      padding: '0 1rem'
+                    }}
+                  >
+                    {categoryPerfumes.map((perfume, idx) => (
+                      <motion.span
+                        key={idx}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.05, duration: 0.2 }}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'rgba(251, 191, 36, 0.1)',
+                          border: '1px solid rgba(251, 191, 36, 0.25)',
+                          borderRadius: '20px',
+                          fontSize: '13px',
+                          fontWeight: '500',
+                          color: '#fbbf24',
+                          letterSpacing: '0.02em'
+                        }}
+                      >
+                        {perfume.Name}
+                      </motion.span>
+                    ))}
+                  </div>
                 </div>
               </div>
 
