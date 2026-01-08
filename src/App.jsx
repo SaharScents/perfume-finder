@@ -1,9 +1,151 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Loader2, X } from 'lucide-react';
+import { Search, Sparkles, Loader2, X, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { loadDatabases, findPerfume, getRecommendations } from './utils/matching';
 import PerfumeCard from './components/PerfumeCard';
 import './App.css';
+
+// Parse CSV helper function
+const parseCSV = (text) => {
+  const lines = text.split('\n').filter(line => line.trim());
+  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
+  
+  return lines.slice(1).map(line => {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let char of line) {
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim());
+    
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = values[i] || '';
+    });
+    return obj;
+  });
+};
+
+// Category Perfume Card Component
+const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
+  const splitNotes = (notesStr) => {
+    if (!notesStr) return [];
+    return notesStr.split(',').map(n => n.trim());
+  };
+
+  const topNotes = splitNotes(perfume['Top Notes']);
+  const midNotes = splitNotes(perfume['Middle Notes']);
+  const baseNotes = splitNotes(perfume['Base Notes']);
+
+  const NoteTag = ({ note }) => (
+    <span 
+      style={{
+        display: 'inline-block',
+        padding: '6px 14px',
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '20px',
+        fontSize: '11px',
+        fontWeight: '500',
+        color: 'rgba(255,255,255,0.8)',
+        letterSpacing: '0.05em'
+      }}
+    >
+      {note}
+    </span>
+  );
+
+  const NoteSection = ({ label, notes }) => {
+    if (!notes || notes.length === 0) return null;
+    return (
+      <div style={{ marginBottom: '16px' }}>
+        <span style={{
+          display: 'block',
+          fontSize: '10px',
+          fontWeight: '600',
+          color: 'rgba(255,255,255,0.4)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.15em',
+          marginBottom: '10px'
+        }}>
+          {label}
+        </span>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+          {notes.map((note, i) => <NoteTag key={i} note={note} />)}
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      style={{
+        background: 'rgba(30, 41, 59, 0.6)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        borderRadius: '20px',
+        padding: '28px',
+        backdropFilter: 'blur(12px)'
+      }}
+    >
+      {/* Header */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3 style={{
+          fontSize: '24px',
+          fontWeight: '600',
+          color: '#fbbf24',
+          marginBottom: '8px',
+          fontFamily: "'Playfair Display', serif"
+        }}>
+          {perfume.Name}
+        </h3>
+        <span style={{
+          display: 'inline-block',
+          fontSize: '11px',
+          color: 'rgba(255,255,255,0.5)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+          background: 'rgba(251, 191, 36, 0.1)',
+          padding: '4px 10px',
+          borderRadius: '20px',
+          border: '1px solid rgba(251, 191, 36, 0.2)'
+        }}>
+          {perfume['Product Type'] || 'Perfume'}
+        </span>
+      </div>
+
+      {/* Description */}
+      {perfume.Description && (
+        <p style={{
+          fontSize: '14px',
+          lineHeight: '1.7',
+          color: 'rgba(255,255,255,0.7)',
+          marginBottom: '24px',
+          paddingBottom: '20px',
+          borderBottom: '1px solid rgba(255,255,255,0.08)'
+        }}>
+          {perfume.Description}
+        </p>
+      )}
+
+      {/* Notes Sections */}
+      <NoteSection label="Top Notes" notes={topNotes} />
+      <NoteSection label="Middle Notes" notes={midNotes} />
+      <NoteSection label="Base Notes" notes={baseNotes} />
+    </motion.div>
+  );
+};
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -12,11 +154,50 @@ function App() {
   const [selectedPerfume, setSelectedPerfume] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  
+  // Category feature states
+  const [categories, setCategories] = useState([]);
+  const [perfumeCategories, setPerfumeCategories] = useState([]);
+  const [saharscentsData, setSaharscentsData] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categoryPerfumes, setCategoryPerfumes] = useState([]);
 
   useEffect(() => {
-    loadDatabases().then(() => {
+    const loadAll = async () => {
+      // Load the matching databases
+      await loadDatabases();
+      
+      // Load perfume categories
+      try {
+        const catResponse = await fetch('/perfume-categories.csv');
+        const catText = await catResponse.text();
+        const catData = parseCSV(catText);
+        setPerfumeCategories(catData);
+        
+        // Extract unique categories
+        const allCategories = new Set();
+        catData.forEach(item => {
+          if (item.Category) {
+            item.Category.split(',').forEach(cat => {
+              allCategories.add(cat.trim());
+            });
+          }
+        });
+        setCategories([...allCategories].sort());
+        
+        // Load saharscents database for full perfume details
+        const ssResponse = await fetch('/saharscents-database.csv');
+        const ssText = await ssResponse.text();
+        const ssData = parseCSV(ssText);
+        setSaharscentsData(ssData);
+      } catch (err) {
+        console.error('Error loading category data:', err);
+      }
+      
       setLoading(false);
-    });
+    };
+    
+    loadAll();
   }, []);
 
   const handleSearch = (e) => {
@@ -44,8 +225,41 @@ function App() {
     setSelectedPerfume(perfume);
     setQuery(perfume.Perfume);
     setIsSearching(false);
+    setSelectedCategory(null);
+    setCategoryPerfumes([]);
     const recs = getRecommendations(perfume);
     setRecommendations(recs);
+  };
+
+  // Handle category selection
+  const handleCategorySelect = (category) => {
+    setSelectedCategory(category);
+    setSelectedPerfume(null);
+    setRecommendations([]);
+    setQuery('');
+    setIsSearching(false);
+    
+    // Find all perfumes that match this category
+    const matchingPerfumes = perfumeCategories.filter(item => {
+      const cats = item.Category ? item.Category.split(',').map(c => c.trim()) : [];
+      return cats.includes(category);
+    });
+    
+    // Get full perfume data from saharscents database
+    const fullPerfumeData = matchingPerfumes.map(mp => {
+      const fullData = saharscentsData.find(ss => 
+        ss.Name && mp.Perfume && 
+        ss.Name.toLowerCase().trim() === mp.Perfume.toLowerCase().trim()
+      );
+      return fullData || { Name: mp.Perfume, categories: mp.Category };
+    }).filter(p => p.Name);
+    
+    setCategoryPerfumes(fullPerfumeData);
+  };
+
+  const clearCategory = () => {
+    setSelectedCategory(null);
+    setCategoryPerfumes([]);
   };
 
   if (loading) {
@@ -202,6 +416,100 @@ function App() {
             )}
           </AnimatePresence>
         </motion.div>
+
+        {/* Category Grid Section */}
+        {!selectedPerfume && !selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="mb-16"
+          >
+            <div className="text-center mb-8">
+              <p className="text-[var(--color-accent-gold)] uppercase tracking-[0.2em] text-xs font-semibold mb-2">
+                Explore By
+              </p>
+              <h2 className="text-2xl md:text-3xl font-playfair text-white">
+                Scent Categories
+              </h2>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+              {categories.map((category, idx) => (
+                <motion.button
+                  key={category}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * idx, duration: 0.3 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => handleCategorySelect(category)}
+                  className="glass-panel group cursor-pointer"
+                  style={{
+                    padding: '16px 20px',
+                    borderRadius: '14px',
+                    background: 'rgba(30, 41, 59, 0.6)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    transition: 'all 0.3s ease',
+                  }}
+                >
+                  <span 
+                    className="text-sm md:text-base font-medium transition-colors group-hover:text-[var(--color-accent-gold)]"
+                    style={{ color: 'rgba(255,255,255,0.9)' }}
+                  >
+                    {category}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Category Results Section */}
+        <AnimatePresence mode="wait">
+          {selectedCategory && categoryPerfumes.length > 0 && (
+            <motion.div
+              key={selectedCategory}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+            >
+              {/* Back button and header */}
+              <div className="mb-8">
+                <motion.button
+                  onClick={clearCategory}
+                  className="flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-white transition-colors mb-6"
+                  whileHover={{ x: -4 }}
+                >
+                  <ChevronLeft size={20} />
+                  <span className="text-sm font-medium">Back to Categories</span>
+                </motion.button>
+                
+                <div className="text-center">
+                  <motion.div 
+                    initial={{ width: 0 }} 
+                    animate={{ width: "100px" }} 
+                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                  />
+                  <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">
+                    {selectedCategory} Scents
+                  </p>
+                  <h2 className="text-3xl md:text-4xl font-playfair text-white capitalize">
+                    {categoryPerfumes.length} Perfume{categoryPerfumes.length !== 1 ? 's' : ''} Found
+                  </h2>
+                </div>
+              </div>
+
+              {/* Category Perfume Cards */}
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+                {categoryPerfumes.map((perfume, idx) => (
+                  <CategoryPerfumeCard key={idx} perfume={perfume} delay={idx * 0.15} />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Results Section */}
         <AnimatePresence mode="wait">
