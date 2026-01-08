@@ -573,7 +573,7 @@ function App() {
               </div>
 
               {/* Category Perfume Cards */}
-              <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12" style={{ marginTop: '32px', padding: '0 1rem' }}>
                 {categoryPerfumes.map((perfume, idx) => (
                   <CategoryPerfumeCard key={idx} perfume={perfume} delay={idx * 0.15} />
                 ))}
