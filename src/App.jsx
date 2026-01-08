@@ -549,11 +549,19 @@ function App() {
                     }}
                   >
                     {categoryPerfumes.map((perfume, idx) => (
-                      <motion.span
+                      <motion.button
                         key={idx}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.05, duration: 0.2 }}
+                        onClick={() => {
+                          const element = document.getElementById(`perfume-${perfume.Name.replace(/\s+/g, '-').toLowerCase()}`);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
                         style={{
                           padding: '8px 16px',
                           background: 'rgba(251, 191, 36, 0.1)',
@@ -562,11 +570,14 @@ function App() {
                           fontSize: '13px',
                           fontWeight: '500',
                           color: '#fbbf24',
-                          letterSpacing: '0.02em'
+                          letterSpacing: '0.02em',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s ease'
                         }}
+                        className="hover:bg-[rgba(251,191,36,0.2)]"
                       >
                         {perfume.Name}
-                      </motion.span>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -575,7 +586,9 @@ function App() {
               {/* Category Perfume Cards */}
               <div className="grid md:grid-cols-2 gap-8 md:gap-12" style={{ marginTop: '32px', padding: '0 1rem' }}>
                 {categoryPerfumes.map((perfume, idx) => (
-                  <CategoryPerfumeCard key={idx} perfume={perfume} delay={idx * 0.15} />
+                  <div key={idx} id={`perfume-${perfume.Name.replace(/\s+/g, '-').toLowerCase()}`}>
+                    <CategoryPerfumeCard perfume={perfume} delay={idx * 0.15} />
+                  </div>
                 ))}
               </div>
             </motion.div>
