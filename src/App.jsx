@@ -424,8 +424,9 @@ function App() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.6 }}
             className="mb-16"
+            style={{ padding: '0 1rem' }}
           >
-            <div className="text-center mb-8">
+            <div className="text-center mb-10">
               <p className="text-[var(--color-accent-gold)] uppercase tracking-[0.2em] text-xs font-semibold mb-2">
                 Explore By
               </p>
@@ -434,28 +435,36 @@ function App() {
               </h2>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+            <div 
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5"
+              style={{ maxWidth: '900px', margin: '0 auto' }}
+            >
               {categories.map((category, idx) => (
                 <motion.button
                   key={category}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.1 * idx, duration: 0.3 }}
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
+                  transition={{ delay: 0.05 * idx, duration: 0.3 }}
+                  whileHover={{ scale: 1.05, y: -4 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => handleCategorySelect(category)}
-                  className="glass-panel group cursor-pointer"
+                  className="group cursor-pointer"
                   style={{
-                    padding: '16px 20px',
-                    borderRadius: '14px',
-                    background: 'rgba(30, 41, 59, 0.6)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    padding: '18px 24px',
+                    borderRadius: '16px',
+                    background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                    backdropFilter: 'blur(10px)',
                     transition: 'all 0.3s ease',
                   }}
                 >
                   <span 
-                    className="text-sm md:text-base font-medium transition-colors group-hover:text-[var(--color-accent-gold)]"
-                    style={{ color: 'rgba(255,255,255,0.9)' }}
+                    className="text-sm md:text-base font-semibold transition-all duration-300 group-hover:text-[var(--color-accent-gold)]"
+                    style={{ 
+                      color: 'rgba(255,255,255,0.9)',
+                      letterSpacing: '0.02em'
+                    }}
                   >
                     {category}
                   </span>
