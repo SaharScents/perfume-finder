@@ -474,16 +474,38 @@ function App() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
+              style={{ padding: '0 1rem' }}
             >
               {/* Back button and header */}
               <div className="mb-8">
                 <motion.button
                   onClick={clearCategory}
-                  className="flex items-center gap-2 text-[var(--color-text-secondary)] hover:text-white transition-colors mb-6"
-                  whileHover={{ x: -4 }}
+                  whileHover={{ scale: 1.02, x: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px 20px',
+                    background: 'rgba(251, 191, 36, 0.1)',
+                    border: '1px solid rgba(251, 191, 36, 0.3)',
+                    borderRadius: '30px',
+                    cursor: 'pointer',
+                    marginBottom: '24px',
+                    backdropFilter: 'blur(8px)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  className="hover:bg-[rgba(251,191,36,0.2)]"
                 >
-                  <ChevronLeft size={20} />
-                  <span className="text-sm font-medium">Back to Categories</span>
+                  <ChevronLeft size={20} style={{ color: '#fbbf24' }} />
+                  <span style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#fbbf24',
+                    letterSpacing: '0.02em'
+                  }}>
+                    Back to Categories
+                  </span>
                 </motion.button>
                 
                 <div className="text-center">
