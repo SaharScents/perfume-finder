@@ -436,8 +436,14 @@ function App() {
             </div>
             
             <div 
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-5"
-              style={{ maxWidth: '900px', margin: '0 auto' }}
+              style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'center',
+                gap: '16px',
+                maxWidth: '800px', 
+                margin: '0 auto' 
+              }}
             >
               {categories.map((category, idx) => (
                 <motion.button
@@ -445,25 +451,26 @@ function App() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.05 * idx, duration: 0.3 }}
-                  whileHover={{ scale: 1.05, y: -4 }}
+                  whileHover={{ scale: 1.08, y: -4 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handleCategorySelect(category)}
                   className="group cursor-pointer"
                   style={{
-                    padding: '18px 24px',
-                    borderRadius: '16px',
+                    padding: '14px 28px',
+                    borderRadius: '30px',
                     background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
                     backdropFilter: 'blur(10px)',
                     transition: 'all 0.3s ease',
                   }}
                 >
                   <span 
-                    className="text-sm md:text-base font-semibold transition-all duration-300 group-hover:text-[var(--color-accent-gold)]"
+                    className="font-semibold transition-all duration-300 group-hover:text-[var(--color-accent-gold)]"
                     style={{ 
                       color: 'rgba(255,255,255,0.9)',
-                      letterSpacing: '0.02em'
+                      letterSpacing: '0.03em',
+                      fontSize: '14px'
                     }}
                   >
                     {category}
