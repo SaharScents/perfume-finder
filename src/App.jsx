@@ -125,19 +125,6 @@ const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
         </span>
       </div>
 
-      {/* Description */}
-      {perfume.Description && (
-        <p style={{
-          fontSize: '14px',
-          lineHeight: '1.7',
-          color: 'rgba(255,255,255,0.7)',
-          marginBottom: '24px',
-          paddingBottom: '20px',
-          borderBottom: '1px solid rgba(255,255,255,0.08)'
-        }}>
-          {perfume.Description}
-        </p>
-      )}
 
       {/* Notes Sections */}
       <NoteSection label="Top Notes" notes={topNotes} />
@@ -161,6 +148,7 @@ function App() {
   const [saharscentsData, setSaharscentsData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryPerfumes, setCategoryPerfumes] = useState([]);
+  const [showAllPerfumes, setShowAllPerfumes] = useState(false);
 
   useEffect(() => {
     const loadAll = async () => {
@@ -236,6 +224,7 @@ function App() {
     setSelectedCategory(category);
     setSelectedPerfume(null);
     setRecommendations([]);
+    setShowAllPerfumes(false);
     setQuery('');
     setIsSearching(false);
     
@@ -260,6 +249,20 @@ function App() {
   const clearCategory = () => {
     setSelectedCategory(null);
     setCategoryPerfumes([]);
+  };
+
+  const handleViewAllPerfumes = () => {
+    setShowAllPerfumes(true);
+    setSelectedPerfume(null);
+    setRecommendations([]);
+    setSelectedCategory(null);
+    setCategoryPerfumes([]);
+    setQuery('');
+    setIsSearching(false);
+  };
+
+  const clearAllPerfumes = () => {
+    setShowAllPerfumes(false);
   };
 
   if (loading) {
@@ -418,7 +421,7 @@ function App() {
         </motion.div>
 
         {/* Category Grid Section */}
-        {!selectedPerfume && !selectedCategory && (
+        {!selectedPerfume && !selectedCategory && !showAllPerfumes && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -478,8 +481,123 @@ function App() {
                 </motion.button>
               ))}
             </div>
+
+            {/* View All Perfumes Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8, duration: 0.5 }}
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                marginTop: '40px' 
+              }}
+            >
+              <motion.button
+                onClick={handleViewAllPerfumes}
+                whileHover={{ scale: 1.05, y: -2 }}
+                whileTap={{ scale: 0.97 }}
+                style={{
+                  padding: '16px 36px',
+                  borderRadius: '30px',
+                  background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.08) 100%)',
+                  border: '1px solid rgba(251, 191, 36, 0.35)',
+                  boxShadow: '0 4px 24px rgba(251, 191, 36, 0.15)',
+                  backdropFilter: 'blur(10px)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                className="hover:shadow-[0_6px_32px_rgba(251,191,36,0.25)]"
+              >
+                <Sparkles size={18} style={{ color: '#fbbf24' }} />
+                <span style={{
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  color: '#fbbf24',
+                  letterSpacing: '0.04em'
+                }}>
+                  View All SaharScents Perfumes
+                </span>
+              </motion.button>
+            </motion.div>
           </motion.div>
         )}
+
+        {/* All Perfumes Section */}
+        <AnimatePresence mode="wait">
+          {showAllPerfumes && saharscentsData.length > 0 && (
+            <motion.div
+              key="all-perfumes"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5 }}
+              style={{ padding: '0 1rem' }}
+            >
+              {/* Back button and header */}
+              <div className="mb-8">
+                <motion.button
+                  onClick={clearAllPerfumes}
+                  whileHover={{ scale: 1.02, x: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '12px 20px',
+                    background: 'rgba(251, 191, 36, 0.1)',
+                    border: '1px solid rgba(251, 191, 36, 0.3)',
+                    borderRadius: '30px',
+                    cursor: 'pointer',
+                    marginBottom: '24px',
+                    backdropFilter: 'blur(8px)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  className="hover:bg-[rgba(251,191,36,0.2)]"
+                >
+                  <ChevronLeft size={20} style={{ color: '#fbbf24' }} />
+                  <span style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: '#fbbf24',
+                    letterSpacing: '0.02em'
+                  }}>
+                    Back to Home
+                  </span>
+                </motion.button>
+                
+                <div className="text-center">
+                  <motion.div 
+                    initial={{ width: 0 }} 
+                    animate={{ width: "100px" }} 
+                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                  />
+                  <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">
+                    Our Collection
+                  </p>
+                  <h2 className="text-3xl md:text-4xl font-playfair text-white">
+                    All SaharScents Perfumes
+                  </h2>
+                  <p className="text-[var(--color-text-secondary)] mt-3 text-base max-w-lg mx-auto">
+                    Explore our full range of {saharscentsData.length} luxury oil-based fragrances
+                  </p>
+                </div>
+              </div>
+
+              {/* All Perfume Cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '32px', padding: '0 1rem' }}>
+                {saharscentsData.map((perfume, idx) => (
+                  <div key={idx} id={`all-perfume-${perfume.Name ? perfume.Name.replace(/\s+/g, '-').toLowerCase() : idx}`}>
+                    <CategoryPerfumeCard perfume={perfume} delay={idx * 0.1} />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Category Results Section */}
         <AnimatePresence mode="wait">
@@ -584,7 +702,7 @@ function App() {
               </div>
 
               {/* Category Perfume Cards */}
-              <div className="grid md:grid-cols-2 gap-8 md:gap-12" style={{ marginTop: '32px', padding: '0 1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '32px', padding: '0 1rem' }}>
                 {categoryPerfumes.map((perfume, idx) => (
                   <div key={idx} id={`perfume-${perfume.Name.replace(/\s+/g, '-').toLowerCase()}`}>
                     <CategoryPerfumeCard perfume={perfume} delay={idx * 0.15} />
@@ -618,7 +736,102 @@ function App() {
                 <p className="text-[var(--color-text-secondary)] mt-2 text-lg">by {selectedPerfume.Brand}</p>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+              {/* Searched Perfume Notes */}
+              {(selectedPerfume.Top || selectedPerfume.Middle || selectedPerfume.Base) && (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.5 }}
+                  style={{
+                    background: 'rgba(30, 41, 59, 0.6)',
+                    border: '1px solid rgba(251, 191, 36, 0.15)',
+                    borderRadius: '20px',
+                    padding: '28px',
+                    backdropFilter: 'blur(12px)',
+                    marginBottom: '48px',
+                    maxWidth: '700px',
+                    marginLeft: 'auto',
+                    marginRight: 'auto'
+                  }}
+                >
+                  <h3 style={{
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    color: '#fbbf24',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.15em',
+                    marginBottom: '20px',
+                    textAlign: 'center'
+                  }}>
+                    Notes of {selectedPerfume.Perfume}
+                  </h3>
+
+                  {selectedPerfume.Top && (
+                    <div style={{ marginBottom: '16px' }}>
+                      <span style={{
+                        display: 'block', fontSize: '10px', fontWeight: '600',
+                        color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+                        letterSpacing: '0.15em', marginBottom: '10px'
+                      }}>Top Notes</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {selectedPerfume.Top.split(',').map((n, i) => (
+                          <span key={i} style={{
+                            display: 'inline-block', padding: '6px 14px',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                            color: 'rgba(255,255,255,0.8)', letterSpacing: '0.05em'
+                          }}>{n.trim()}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedPerfume.Middle && (
+                    <div style={{ marginBottom: '16px' }}>
+                      <span style={{
+                        display: 'block', fontSize: '10px', fontWeight: '600',
+                        color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+                        letterSpacing: '0.15em', marginBottom: '10px'
+                      }}>Middle Notes</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {selectedPerfume.Middle.split(',').map((n, i) => (
+                          <span key={i} style={{
+                            display: 'inline-block', padding: '6px 14px',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                            color: 'rgba(255,255,255,0.8)', letterSpacing: '0.05em'
+                          }}>{n.trim()}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedPerfume.Base && (
+                    <div>
+                      <span style={{
+                        display: 'block', fontSize: '10px', fontWeight: '600',
+                        color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
+                        letterSpacing: '0.15em', marginBottom: '10px'
+                      }}>Base Notes</span>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                        {selectedPerfume.Base.split(',').map((n, i) => (
+                          <span key={i} style={{
+                            display: 'inline-block', padding: '6px 14px',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '20px', fontSize: '11px', fontWeight: '500',
+                            color: 'rgba(255,255,255,0.8)', letterSpacing: '0.05em'
+                          }}>{n.trim()}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                 {recommendations.map((rec, idx) => (
                   <PerfumeCard key={idx} perfume={rec} delay={idx * 0.2} />
                 ))}
