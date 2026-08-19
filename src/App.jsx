@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Search, Sparkles, Loader2, X, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { loadDatabases, findPerfume, getRecommendations, getDatabaseData, formatDisplayName } from './utils/matching';
@@ -111,6 +111,7 @@ function App() {
   const [selectedPerfume, setSelectedPerfume] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const searchContainerRef = useRef(null);
   
   // Category feature states
   const [categories, setCategories] = useState([]);
@@ -137,6 +138,21 @@ function App() {
     return () => { isMounted = false; };
   }, []);
 
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearching(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
+
   // Debounced search for zero input lag and high frame rates on mobile
   useEffect(() => {
     if (!query || query.trim().length < 2) {
@@ -145,18 +161,28 @@ function App() {
       return;
     }
 
+    // If query matches current selected perfume name, do not re-open the dropdown
+    if (selectedPerfume && formatDisplayName(selectedPerfume.Perfume).toLowerCase().trim() === query.toLowerCase().trim()) {
+      setIsSearching(false);
+      return;
+    }
+
     const timer = setTimeout(() => {
       const results = findPerfume(query);
       setSearchResults(results);
-      setIsSearching(true);
+      setIsSearching(results.length > 0);
     }, 60);
 
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, selectedPerfume]);
 
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setQuery(val);
+    if (selectedPerfume && formatDisplayName(selectedPerfume.Perfume) !== val) {
+      setSelectedPerfume(null);
+      setRecommendations([]);
+    }
     if (!val || val.trim().length < 2) {
       setSearchResults([]);
       setIsSearching(false);
@@ -175,6 +201,7 @@ function App() {
     setSelectedPerfume(perfume);
     setQuery(formatDisplayName(perfume.Perfume));
     setIsSearching(false);
+    setSearchResults([]);
     setSelectedCategory(null);
     setCategoryPerfumes([]);
     const recs = getRecommendations(perfume);
@@ -281,6 +308,7 @@ function App() {
 
         {/* Search Section */}
         <motion.div 
+          ref={searchContainerRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25, ease: "easeOut" }}
@@ -311,6 +339,16 @@ function App() {
               type="text"
               value={query}
               onChange={handleSearchChange}
+              onFocus={() => {
+                if (searchResults.length > 0 && (!selectedPerfume || formatDisplayName(selectedPerfume.Perfume) !== query)) {
+                  setIsSearching(true);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsSearching(false);
+                }
+              }}
               placeholder="Search for a perfume..."
               style={{ 
                 width: '100%',
