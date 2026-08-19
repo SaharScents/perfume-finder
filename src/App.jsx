@@ -58,9 +58,9 @@ const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: Math.min(delay, 0.3), ease: "easeOut" }}
+      transition={{ duration: 0.22, delay: Math.min(delay, 0.1), ease: "easeOut" }}
       style={{
         background: 'rgba(30, 41, 59, 0.65)',
         border: '1px solid rgba(255,255,255,0.08)',
@@ -224,14 +224,14 @@ function App() {
       <div className="min-h-screen bg-[var(--color-bg-main)] flex flex-col items-center justify-center text-white">
         <motion.div 
           animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
         >
           <Loader2 className="w-12 h-12 text-[var(--color-accent-gold)]" />
         </motion.div>
         <motion.span 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="mt-4 text-xl font-light tracking-widest text-[var(--color-accent-gold)] uppercase"
         >
           Curating Scents
@@ -265,13 +265,13 @@ function App() {
         
         {/* Header */}
         <motion.div 
-          initial={{ opacity: 0, y: -30 }}
+          initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center mb-12 md:mb-16"
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="text-center mb-10 md:mb-14"
         >
 
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gradient-gold font-playfair tracking-tight leading-tight">
+          <h1 className="text-4xl md:text-6xl font-bold mb-3 text-gradient-gold font-playfair tracking-tight leading-tight">
             SaharScents
           </h1>
           <p className="text-base md:text-lg text-[var(--color-text-secondary)] font-light tracking-wide max-w-lg mx-auto leading-relaxed">
@@ -281,11 +281,11 @@ function App() {
 
         {/* Search Section */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
           className="relative z-50"
-          style={{ maxWidth: '500px', margin: '0 auto 4rem auto', padding: '0 1rem' }}
+          style={{ maxWidth: '500px', margin: '0 auto 3.5rem auto', padding: '0 1rem' }}
         >
           {/* Glow effect */}
           <div 
@@ -338,16 +338,16 @@ function App() {
           <AnimatePresence>
             {isSearching && searchResults.length > 0 && (
               <motion.div
-                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                initial={{ opacity: 0, y: -6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
+                exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                transition={{ duration: 0.12 }}
                 style={{
                   position: 'absolute',
                   top: '100%',
                   left: 0,
                   right: 0,
-                  marginTop: '12px',
+                  marginTop: '8px',
                   background: 'rgba(30, 41, 59, 0.98)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   borderRadius: '16px',
@@ -358,28 +358,26 @@ function App() {
                 }}
               >
                 {searchResults.map((result, idx) => (
-                  <motion.button
+                  <button
                     key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.05 }}
                     onClick={() => handleSelect(result)}
                     style={{
                       width: '100%',
                       textAlign: 'left',
-                      padding: '16px 20px',
+                      padding: '14px 20px',
                       background: 'transparent',
                       border: 'none',
                       borderBottom: '1px solid rgba(255,255,255,0.05)',
                       cursor: 'pointer',
                       display: 'flex',
-                      flexDirection: 'column'
+                      flexDirection: 'column',
+                      transition: 'background 0.12s ease'
                     }}
-                    className="hover:bg-white/10"
+                    className="hover:bg-white/10 active:bg-white/15"
                   >
-                    <span style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>{result.Perfume}</span>
-                    <span style={{ color: '#94a3b8', fontSize: '14px', marginTop: '4px' }}>{result.Brand} • {result.Gender}</span>
-                  </motion.button>
+                    <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>{result.Perfume}</span>
+                    <span style={{ color: '#94a3b8', fontSize: '13px', marginTop: '2px' }}>{result.Brand} • {result.Gender}</span>
+                  </button>
                 ))}
               </motion.div>
             )}
@@ -389,13 +387,13 @@ function App() {
         {/* Category Grid Section */}
         {!selectedPerfume && !selectedCategory && !showAllPerfumes && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="mb-16"
             style={{ padding: '0 1rem' }}
           >
-            <div className="text-center mb-10">
+            <div className="text-center mb-8">
               <p className="text-[var(--color-accent-gold)] uppercase tracking-[0.2em] text-xs font-semibold mb-2">
                 Explore By
               </p>
@@ -409,33 +407,33 @@ function App() {
                 display: 'flex', 
                 flexWrap: 'wrap', 
                 justifyContent: 'center',
-                gap: '16px',
+                gap: '12px',
                 maxWidth: '800px', 
                 margin: '0 auto' 
               }}
             >
-              {categories.map((category, idx) => (
+              {categories.map((category) => (
                 <motion.button
                   key={category}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.05 * idx, duration: 0.3 }}
-                  whileHover={{ scale: 1.08, y: -4 }}
+                  transition={{ duration: 0.15 }}
+                  whileHover={{ scale: 1.05, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => handleCategorySelect(category)}
                   className="group cursor-pointer"
                   style={{
-                    padding: '14px 28px',
+                    padding: '12px 24px',
                     borderRadius: '30px',
                     background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%)',
                     border: '1px solid rgba(255,255,255,0.12)',
-                    boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
                     backdropFilter: 'blur(10px)',
-                    transition: 'all 0.3s ease',
+                    transition: 'all 0.15s ease-out',
                   }}
                 >
                   <span 
-                    className="font-semibold transition-all duration-300 group-hover:text-[var(--color-accent-gold)]"
+                    className="font-semibold transition-colors duration-150 group-hover:text-[var(--color-accent-gold)]"
                     style={{ 
                       color: 'rgba(255,255,255,0.9)',
                       letterSpacing: '0.03em',
@@ -450,40 +448,40 @@ function App() {
 
             {/* View All Perfumes Button */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
+              transition={{ duration: 0.2 }}
               style={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
-                marginTop: '40px' 
+                marginTop: '32px' 
               }}
             >
               <motion.button
                 onClick={handleViewAllPerfumes}
-                whileHover={{ scale: 1.05, y: -2 }}
+                whileHover={{ scale: 1.04, y: -1 }}
                 whileTap={{ scale: 0.97 }}
                 style={{
-                  padding: '16px 36px',
+                  padding: '14px 32px',
                   borderRadius: '30px',
                   background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(251, 191, 36, 0.08) 100%)',
                   border: '1px solid rgba(251, 191, 36, 0.35)',
-                  boxShadow: '0 4px 24px rgba(251, 191, 36, 0.15)',
+                  boxShadow: '0 4px 20px rgba(251, 191, 36, 0.12)',
                   backdropFilter: 'blur(10px)',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
+                  transition: 'all 0.15s ease-out',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '10px'
                 }}
-                className="hover:shadow-[0_6px_32px_rgba(251,191,36,0.25)]"
+                className="hover:shadow-[0_6px_28px_rgba(251,191,36,0.25)]"
               >
-                <Sparkles size={18} style={{ color: '#fbbf24' }} />
+                <Sparkles size={17} style={{ color: '#fbbf24' }} />
                 <span style={{
-                  fontSize: '15px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   color: '#fbbf24',
-                  letterSpacing: '0.04em'
+                  letterSpacing: '0.03em'
                 }}>
                   View All SaharScents Perfumes
                 </span>
@@ -497,36 +495,36 @@ function App() {
           {showAllPerfumes && saharscentsData.length > 0 && (
             <motion.div
               key="all-perfumes"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
               style={{ padding: '0 1rem' }}
             >
               {/* Back button and header */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <motion.button
                   onClick={clearAllPerfumes}
-                  whileHover={{ scale: 1.02, x: -4 }}
+                  whileHover={{ scale: 1.02, x: -3 }}
                   whileTap={{ scale: 0.98 }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 20px',
+                    gap: '8px',
+                    padding: '10px 18px',
                     background: 'rgba(251, 191, 36, 0.1)',
                     border: '1px solid rgba(251, 191, 36, 0.3)',
                     borderRadius: '30px',
                     cursor: 'pointer',
-                    marginBottom: '24px',
+                    marginBottom: '20px',
                     backdropFilter: 'blur(8px)',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.15s ease'
                   }}
                   className="hover:bg-[rgba(251,191,36,0.2)]"
                 >
-                  <ChevronLeft size={20} style={{ color: '#fbbf24' }} />
+                  <ChevronLeft size={18} style={{ color: '#fbbf24' }} />
                   <span style={{ 
-                    fontSize: '14px', 
+                    fontSize: '13px', 
                     fontWeight: '600', 
                     color: '#fbbf24',
                     letterSpacing: '0.02em'
@@ -538,26 +536,27 @@ function App() {
                 <div className="text-center">
                   <motion.div 
                     initial={{ width: 0 }} 
-                    animate={{ width: "100px" }} 
-                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                    animate={{ width: "80px" }} 
+                    transition={{ duration: 0.25 }}
+                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-4 rounded-full"
                   />
-                  <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">
+                  <p className="text-[var(--color-accent-gold)] mb-2 uppercase tracking-[0.2em] text-xs font-semibold">
                     Our Collection
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-playfair text-white">
+                  <h2 className="text-2xl md:text-3xl font-playfair text-white">
                     All SaharScents Perfumes
                   </h2>
-                  <p className="text-[var(--color-text-secondary)] mt-3 text-base max-w-lg mx-auto">
+                  <p className="text-[var(--color-text-secondary)] mt-2 text-sm max-w-lg mx-auto">
                     Explore our full range of {saharscentsData.length} luxury oil-based fragrances
                   </p>
                 </div>
               </div>
 
               {/* All Perfume Cards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '32px', padding: '0 1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '24px', padding: '0 1rem' }}>
                 {saharscentsData.map((perfume, idx) => (
                   <div key={idx} id={`all-perfume-${perfume.Name ? perfume.Name.replace(/\s+/g, '-').toLowerCase() : idx}`}>
-                    <CategoryPerfumeCard perfume={perfume} delay={idx * 0.1} />
+                    <CategoryPerfumeCard perfume={perfume} delay={Math.min(idx * 0.03, 0.15)} />
                   </div>
                 ))}
               </div>
@@ -570,36 +569,36 @@ function App() {
           {selectedCategory && categoryPerfumes.length > 0 && (
             <motion.div
               key={selectedCategory}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
               style={{ padding: '0 1rem' }}
             >
               {/* Back button and header */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <motion.button
                   onClick={clearCategory}
-                  whileHover={{ scale: 1.02, x: -4 }}
+                  whileHover={{ scale: 1.02, x: -3 }}
                   whileTap={{ scale: 0.98 }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '10px',
-                    padding: '12px 20px',
+                    gap: '8px',
+                    padding: '10px 18px',
                     background: 'rgba(251, 191, 36, 0.1)',
                     border: '1px solid rgba(251, 191, 36, 0.3)',
                     borderRadius: '30px',
                     cursor: 'pointer',
-                    marginBottom: '24px',
+                    marginBottom: '20px',
                     backdropFilter: 'blur(8px)',
-                    transition: 'all 0.3s ease'
+                    transition: 'all 0.15s ease'
                   }}
                   className="hover:bg-[rgba(251,191,36,0.2)]"
                 >
-                  <ChevronLeft size={20} style={{ color: '#fbbf24' }} />
+                  <ChevronLeft size={18} style={{ color: '#fbbf24' }} />
                   <span style={{ 
-                    fontSize: '14px', 
+                    fontSize: '13px', 
                     fontWeight: '600', 
                     color: '#fbbf24',
                     letterSpacing: '0.02em'
@@ -611,13 +610,14 @@ function App() {
                 <div className="text-center">
                   <motion.div 
                     initial={{ width: 0 }} 
-                    animate={{ width: "100px" }} 
-                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                    animate={{ width: "80px" }} 
+                    transition={{ duration: 0.25 }}
+                    className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-4 rounded-full"
                   />
-                  <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">
+                  <p className="text-[var(--color-accent-gold)] mb-2 uppercase tracking-[0.2em] text-xs font-semibold">
                     {selectedCategory} Scents
                   </p>
-                  <h2 className="text-3xl md:text-4xl font-playfair text-white capitalize">
+                  <h2 className="text-2xl md:text-3xl font-playfair text-white capitalize">
                     {categoryPerfumes.length} Perfume{categoryPerfumes.length !== 1 ? 's' : ''} Found
                   </h2>
                   
@@ -627,36 +627,36 @@ function App() {
                       display: 'flex', 
                       flexWrap: 'wrap', 
                       justifyContent: 'center',
-                      gap: '10px',
-                      marginTop: '20px',
+                      gap: '8px',
+                      marginTop: '16px',
                       padding: '0 1rem'
                     }}
                   >
                     {categoryPerfumes.map((perfume, idx) => (
                       <motion.button
                         key={idx}
-                        initial={{ opacity: 0, scale: 0.9 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.05, duration: 0.2 }}
+                        transition={{ duration: 0.12 }}
                         onClick={() => {
                           const element = document.getElementById(`perfume-${perfume.Name.replace(/\s+/g, '-').toLowerCase()}`);
                           if (element) {
                             element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                           }
                         }}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.04 }}
                         whileTap={{ scale: 0.98 }}
                         style={{
-                          padding: '8px 16px',
+                          padding: '6px 14px',
                           background: 'rgba(251, 191, 36, 0.1)',
                           border: '1px solid rgba(251, 191, 36, 0.25)',
                           borderRadius: '20px',
-                          fontSize: '13px',
+                          fontSize: '12px',
                           fontWeight: '500',
                           color: '#fbbf24',
                           letterSpacing: '0.02em',
                           cursor: 'pointer',
-                          transition: 'all 0.2s ease'
+                          transition: 'all 0.15s ease'
                         }}
                         className="hover:bg-[rgba(251,191,36,0.2)]"
                       >
@@ -668,10 +668,10 @@ function App() {
               </div>
 
               {/* Category Perfume Cards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '32px', padding: '0 1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', marginTop: '24px', padding: '0 1rem' }}>
                 {categoryPerfumes.map((perfume, idx) => (
                   <div key={idx} id={`perfume-${perfume.Name.replace(/\s+/g, '-').toLowerCase()}`}>
-                    <CategoryPerfumeCard perfume={perfume} delay={idx * 0.15} />
+                    <CategoryPerfumeCard perfume={perfume} delay={Math.min(idx * 0.03, 0.15)} />
                   </div>
                 ))}
               </div>
@@ -684,65 +684,67 @@ function App() {
           {selectedPerfume && (
             <motion.div
               key={selectedPerfume.Perfume}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
             >
-              <div className="text-center mb-12">
+              <div className="text-center mb-8">
                 <motion.div 
                   initial={{ width: 0 }} 
-                  animate={{ width: "100px" }} 
-                  className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-6 rounded-full"
+                  animate={{ width: "80px" }} 
+                  transition={{ duration: 0.25 }}
+                  className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-4 rounded-full"
                 />
-                <p className="text-[var(--color-accent-gold)] mb-3 uppercase tracking-[0.2em] text-xs font-semibold">Perfect Matches For</p>
-                <h2 className="text-3xl md:text-4xl font-playfair text-white capitalize">
+                <p className="text-[var(--color-accent-gold)] mb-2 uppercase tracking-[0.2em] text-xs font-semibold">Perfect Matches For</p>
+                <h2 className="text-2xl md:text-3xl font-playfair text-white capitalize">
                   {selectedPerfume.Perfume}
                 </h2>
-                <p className="text-[var(--color-text-secondary)] mt-2 text-lg">by {selectedPerfume.Brand}</p>
+                <p className="text-[var(--color-text-secondary)] mt-1 text-base">by {selectedPerfume.Brand}</p>
               </div>
 
               {/* Searched Perfume Notes */}
               {(selectedPerfume.Top || selectedPerfume.Middle || selectedPerfume.Base) && (
                 <motion.div
-                  initial={{ opacity: 0, y: 15 }}
+                  initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   style={{
-                    background: 'rgba(30, 41, 59, 0.6)',
+                    background: 'rgba(30, 41, 59, 0.65)',
                     border: '1px solid rgba(251, 191, 36, 0.15)',
                     borderRadius: '20px',
-                    padding: '28px',
+                    padding: '24px',
                     backdropFilter: 'blur(12px)',
-                    marginBottom: '48px',
+                    marginBottom: '36px',
                     maxWidth: '700px',
                     marginLeft: 'auto',
-                    marginRight: 'auto'
+                    marginRight: 'auto',
+                    transform: 'translateZ(0)'
                   }}
                 >
                   <h3 style={{
-                    fontSize: '12px',
+                    fontSize: '11px',
                     fontWeight: '600',
                     color: '#fbbf24',
                     textTransform: 'uppercase',
                     letterSpacing: '0.15em',
-                    marginBottom: '20px',
+                    marginBottom: '16px',
                     textAlign: 'center'
                   }}>
                     Notes of {selectedPerfume.Perfume}
                   </h3>
 
                   {selectedPerfume.Top && (
-                    <div style={{ marginBottom: '16px' }}>
+                    <div style={{ marginBottom: '14px' }}>
                       <span style={{
                         display: 'block', fontSize: '10px', fontWeight: '600',
                         color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
-                        letterSpacing: '0.15em', marginBottom: '10px'
+                        letterSpacing: '0.15em', marginBottom: '8px'
                       }}>Top Notes</span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {selectedPerfume.Top.split(',').map((n, i) => (
                           <span key={i} style={{
-                            display: 'inline-block', padding: '6px 14px',
+                            display: 'inline-block', padding: '5px 12px',
                             background: 'rgba(255,255,255,0.05)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '20px', fontSize: '11px', fontWeight: '500',
@@ -754,16 +756,16 @@ function App() {
                   )}
 
                   {selectedPerfume.Middle && (
-                    <div style={{ marginBottom: '16px' }}>
+                    <div style={{ marginBottom: '14px' }}>
                       <span style={{
                         display: 'block', fontSize: '10px', fontWeight: '600',
                         color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
-                        letterSpacing: '0.15em', marginBottom: '10px'
+                        letterSpacing: '0.15em', marginBottom: '8px'
                       }}>Middle Notes</span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {selectedPerfume.Middle.split(',').map((n, i) => (
                           <span key={i} style={{
-                            display: 'inline-block', padding: '6px 14px',
+                            display: 'inline-block', padding: '5px 12px',
                             background: 'rgba(255,255,255,0.05)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '20px', fontSize: '11px', fontWeight: '500',
@@ -779,12 +781,12 @@ function App() {
                       <span style={{
                         display: 'block', fontSize: '10px', fontWeight: '600',
                         color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase',
-                        letterSpacing: '0.15em', marginBottom: '10px'
+                        letterSpacing: '0.15em', marginBottom: '8px'
                       }}>Base Notes</span>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {selectedPerfume.Base.split(',').map((n, i) => (
                           <span key={i} style={{
-                            display: 'inline-block', padding: '6px 14px',
+                            display: 'inline-block', padding: '5px 12px',
                             background: 'rgba(255,255,255,0.05)',
                             border: '1px solid rgba(255,255,255,0.1)',
                             borderRadius: '20px', fontSize: '11px', fontWeight: '500',
@@ -797,15 +799,15 @@ function App() {
                 </motion.div>
               )}
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 {recommendations.map((rec, idx) => (
-                  <PerfumeCard key={idx} perfume={rec} delay={idx * 0.2} />
+                  <PerfumeCard key={idx} perfume={rec} delay={idx * 0.08} />
                 ))}
               </div>
 
               {recommendations.length === 0 && (
-                <div className="text-center text-gray-400 mt-12 glass-panel p-8 rounded-2xl max-w-md mx-auto">
-                  <p className="text-lg">We couldn't find a direct match in our collection yet.</p>
+                <div className="text-center text-gray-400 mt-10 glass-panel p-8 rounded-2xl max-w-md mx-auto">
+                  <p className="text-base">We couldn't find a direct match in our collection yet.</p>
                   <p className="text-sm mt-2">Try searching for another favorite!</p>
                 </div>
               )}

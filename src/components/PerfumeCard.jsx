@@ -54,7 +54,7 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
             strokeDasharray={circumference}
             strokeDashoffset={circumference - progress}
             strokeLinecap="round"
-            style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+            style={{ transition: 'stroke-dashoffset 0.3s ease-out' }}
           />
         </svg>
         <span style={{
@@ -111,15 +111,16 @@ const PerfumeCard = ({ perfume, delay = 0 }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      transition={{ duration: 0.25, delay: Math.min(delay, 0.12), ease: "easeOut" }}
       style={{
-        background: 'rgba(30, 41, 59, 0.6)',
+        background: 'rgba(30, 41, 59, 0.65)',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '20px',
         padding: '28px',
-        backdropFilter: 'blur(12px)'
+        backdropFilter: 'blur(12px)',
+        transform: 'translateZ(0)'
       }}
     >
       {/* Header with Match Ring */}
