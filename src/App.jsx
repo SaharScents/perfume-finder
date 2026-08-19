@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Sparkles, Loader2, X, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { loadDatabases, findPerfume, getRecommendations, getDatabaseData } from './utils/matching';
+import { loadDatabases, findPerfume, getRecommendations, getDatabaseData, formatDisplayName } from './utils/matching';
 import PerfumeCard from './components/PerfumeCard';
 import './App.css';
 
@@ -173,7 +173,7 @@ function App() {
 
   const handleSelect = useCallback((perfume) => {
     setSelectedPerfume(perfume);
-    setQuery(perfume.Perfume);
+    setQuery(formatDisplayName(perfume.Perfume));
     setIsSearching(false);
     setSelectedCategory(null);
     setCategoryPerfumes([]);
@@ -375,8 +375,8 @@ function App() {
                     }}
                     className="hover:bg-white/10 active:bg-white/15"
                   >
-                    <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>{result.Perfume}</span>
-                    <span style={{ color: '#94a3b8', fontSize: '13px', marginTop: '2px' }}>{result.Brand} • {result.Gender}</span>
+                    <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>{formatDisplayName(result.Perfume)}</span>
+                    <span style={{ color: '#94a3b8', fontSize: '13px', marginTop: '2px' }}>{formatDisplayName(result.Brand)} • {result.Gender}</span>
                   </button>
                 ))}
               </motion.div>
@@ -697,10 +697,10 @@ function App() {
                   className="h-1 bg-[var(--color-accent-gold)] mx-auto mb-4 rounded-full"
                 />
                 <p className="text-[var(--color-accent-gold)] mb-2 uppercase tracking-[0.2em] text-xs font-semibold">Perfect Matches For</p>
-                <h2 className="text-2xl md:text-3xl font-playfair text-white capitalize">
-                  {selectedPerfume.Perfume}
+                <h2 className="text-2xl md:text-3xl font-playfair text-white">
+                  {formatDisplayName(selectedPerfume.Perfume)}
                 </h2>
-                <p className="text-[var(--color-text-secondary)] mt-1 text-base">by {selectedPerfume.Brand}</p>
+                <p className="text-[var(--color-text-secondary)] mt-1 text-base">by {formatDisplayName(selectedPerfume.Brand)}</p>
               </div>
 
               {/* Searched Perfume Notes */}
@@ -731,7 +731,7 @@ function App() {
                     marginBottom: '16px',
                     textAlign: 'center'
                   }}>
-                    Notes of {selectedPerfume.Perfume}
+                    Notes of {formatDisplayName(selectedPerfume.Perfume)}
                   </h3>
 
                   {selectedPerfume.Top && (

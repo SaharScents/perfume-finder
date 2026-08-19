@@ -281,18 +281,123 @@ let categoryList = [];
 let searchIndex = [];
 let fuse = null;
 
+// Normalize accents (e.g. café -> cafe, hermès -> hermes)
+export const stripAccents = (str) => {
+  return (str || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+};
+
+// Clean text for search query and indexing (strips hyphens, accents, punctuation)
+export const normalizeSearchText = (str) => {
+  return stripAccents(str)
+    .toLowerCase()
+    .replace(/[-_.,'\/()]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+};
+
+// Brand & acronym aliases
+const BRAND_ALIASES = {
+  'ysl': 'yves saint laurent',
+  'yves saint laurent': 'ysl',
+  'mfk': 'maison francis kurkdjian',
+  'maison francis kurkdjian': 'mfk',
+  'dng': 'dolce gabbana',
+  'd&g': 'dolce gabbana',
+  'dolce gabbana': 'd&g',
+  'pdm': 'parfums de marly',
+  'parfums de marly': 'pdm',
+  'jpg': 'jean paul gaultier',
+  'jean paul gaultier': 'jpg',
+  'tf': 'tom ford',
+  'tom ford': 'tf',
+  'jomalone': 'jo malone',
+  'jo malone': 'jomalone',
+  'lv': 'louis vuitton'
+};
+
+// Curated brand & term proper names
+const BRAND_OVERRIDES = {
+  'ysl': 'YSL',
+  'dior': 'Dior',
+  'gucci': 'Gucci',
+  'chanel': 'Chanel',
+  'creed': 'Creed',
+  'xerjoff': 'Xerjoff',
+  'parfums-de-marly': 'Parfums de Marly',
+  'maison-francis-kurkdjian': 'Maison Francis Kurkdjian',
+  'yves-saint-laurent': 'Yves Saint Laurent',
+  'jean-paul-gaultier': 'Jean Paul Gaultier',
+  'tom-ford': 'Tom Ford',
+  'jo-malone-london': 'Jo Malone London',
+  'jo-malone': 'Jo Malone',
+  'viktor-rolf': 'Viktor & Rolf',
+  'paco-rabanne': 'Paco Rabanne',
+  'giorgio-armani': 'Giorgio Armani',
+  'dolce-gabbana': 'Dolce & Gabbana',
+  'acqua-di-parma': 'Acqua di Parma',
+  'le-labo': 'Le Labo',
+  'byredo': 'Byredo',
+  'diptyque': 'Diptyque',
+  'hermes': 'Hermès',
+  'narciso-rodriguez': 'Narciso Rodriguez',
+  'elizabeth-arden': 'Elizabeth Arden',
+  'calvin-klein': 'Calvin Klein',
+  'hugo-boss': 'Hugo Boss',
+  'roja-dove': 'Roja Dove',
+  'montale': 'Montale',
+  'mancera': 'Mancera',
+  'amouage': 'Amouage',
+  'kilian': 'Kilian'
+};
+
+// Transform hyphenated/slug perfume & brand names to clean, beautiful human titles
+export const formatDisplayName = (slug) => {
+  if (!slug) return '';
+  const lower = slug.toLowerCase().trim();
+  if (BRAND_OVERRIDES[lower]) {
+    return BRAND_OVERRIDES[lower];
+  }
+
+  const smallWords = new Set(['de', 'du', 'des', 'la', 'le', 'les', "d'", "l'", 'et', 'en', 'van', 'von', 'of', 'and', 'the', 'in', 'on', 'for']);
+
+  return slug
+    .replace(/[-_]+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((word, idx) => {
+      const wLower = word.toLowerCase();
+      if (idx > 0 && smallWords.has(wLower)) {
+        return wLower;
+      }
+      if (/^[0-9]+$/.test(word) || /^(eau|edp|edt|edc)$/i.test(word)) {
+        return word.toUpperCase();
+      }
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+};
+
 // Build search index for sub-2ms lookups over 24,000 items
 const buildSearchIndex = (data) => {
   return data.map(p => {
-    const pName = (p.Perfume || '').toLowerCase();
-    const bName = (p.Brand || '').toLowerCase();
-    const cleanP = pName.replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, '');
-    const cleanB = bName.replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, '');
+    const pRaw = p.Perfume || '';
+    const bRaw = p.Brand || '';
+    const pNorm = normalizeSearchText(pRaw);
+    const bNorm = normalizeSearchText(bRaw);
+    const pCompact = pNorm.replace(/\s+/g, '');
+    const bCompact = bNorm.replace(/\s+/g, '');
+    const aliasP = BRAND_ALIASES[pNorm] || '';
+    const aliasB = BRAND_ALIASES[bNorm] || '';
+
     return {
       item: p,
-      cleanP,
-      cleanB,
-      combined: `${cleanP} ${cleanB} ${cleanB} ${cleanP}`
+      pNorm,
+      bNorm,
+      pCompact,
+      bCompact,
+      combined: `${pNorm} ${bNorm} ${pCompact} ${bCompact} ${aliasB} ${aliasP}`
     };
   });
 };
@@ -379,8 +484,9 @@ export const getDatabaseData = () => ({
 
 export const findPerfume = (query) => {
   if (!query || !searchIndex.length) return [];
-  const q = query.toLowerCase().trim().replace(/-/g, ' ').replace(/[^a-z0-9\s]/g, '');
-  const tokens = q.split(/\s+/).filter(Boolean);
+  const cleanQ = normalizeSearchText(query);
+  const compactQ = cleanQ.replace(/\s+/g, '');
+  const tokens = cleanQ.split(/\s+/).filter(Boolean);
   if (!tokens.length) return [];
 
   const results = [];
@@ -388,20 +494,24 @@ export const findPerfume = (query) => {
     const entry = searchIndex[i];
     let matchesAll = true;
     for (let j = 0; j < tokens.length; j++) {
-      if (!entry.combined.includes(tokens[j])) {
+      const t = tokens[j];
+      const alias = BRAND_ALIASES[t] || t;
+      if (!entry.combined.includes(t) && !entry.combined.includes(alias)) {
         matchesAll = false;
         break;
       }
     }
     if (matchesAll) {
       let score = 0;
-      if (entry.cleanP === q) score += 100;
-      else if (entry.cleanP.startsWith(q)) score += 60;
-      else if (entry.cleanB === q) score += 50;
-      else if (entry.cleanB.startsWith(q)) score += 30;
+      // Exact perfume name match
+      if (entry.pNorm === cleanQ || entry.pCompact === compactQ) score += 100;
+      else if (entry.pNorm.startsWith(cleanQ) || entry.pCompact.startsWith(compactQ)) score += 70;
+      else if (entry.bNorm === cleanQ) score += 50;
+      else if (entry.bNorm.startsWith(cleanQ)) score += 35;
 
-      if (entry.cleanP.startsWith(tokens[0])) score += 20;
-      if (entry.cleanB.startsWith(tokens[0])) score += 15;
+      // Token prefix bonus
+      if (entry.pNorm.startsWith(tokens[0])) score += 25;
+      if (entry.bNorm.startsWith(tokens[0])) score += 15;
 
       results.push({ item: entry.item, score });
       if (results.length >= 60) break;
