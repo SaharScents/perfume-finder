@@ -1,39 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Sparkles, Loader2, X, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { loadDatabases, findPerfume, getRecommendations } from './utils/matching';
+import { loadDatabases, findPerfume, getRecommendations, getDatabaseData } from './utils/matching';
 import PerfumeCard from './components/PerfumeCard';
 import './App.css';
-
-// Parse CSV helper function
-const parseCSV = (text) => {
-  const lines = text.split('\n').filter(line => line.trim());
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim());
-  
-  return lines.slice(1).map(line => {
-    const values = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (let char of line) {
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        values.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    values.push(current.trim());
-    
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = values[i] || '';
-    });
-    return obj;
-  });
-};
 
 // Category Perfume Card Component
 const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
@@ -90,13 +60,14 @@ const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay, ease: "easeOut" }}
+      transition={{ duration: 0.4, delay: Math.min(delay, 0.3), ease: "easeOut" }}
       style={{
-        background: 'rgba(30, 41, 59, 0.6)',
+        background: 'rgba(30, 41, 59, 0.65)',
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '20px',
         padding: '28px',
-        backdropFilter: 'blur(12px)'
+        backdropFilter: 'blur(12px)',
+        transform: 'translateZ(0)'
       }}
     >
       {/* Header */}
@@ -125,7 +96,6 @@ const CategoryPerfumeCard = ({ perfume, delay = 0 }) => {
         </span>
       </div>
 
-
       {/* Notes Sections */}
       <NoteSection label="Top Notes" notes={topNotes} />
       <NoteSection label="Middle Notes" notes={midNotes} />
@@ -144,72 +114,64 @@ function App() {
   
   // Category feature states
   const [categories, setCategories] = useState([]);
-  const [perfumeCategories, setPerfumeCategories] = useState([]);
+  const [categoryMap, setCategoryMap] = useState({});
   const [saharscentsData, setSaharscentsData] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [categoryPerfumes, setCategoryPerfumes] = useState([]);
   const [showAllPerfumes, setShowAllPerfumes] = useState(false);
 
+  // Single unified data load
   useEffect(() => {
-    const loadAll = async () => {
-      // Load the matching databases
+    let isMounted = true;
+    const init = async () => {
       await loadDatabases();
-      
-      // Load perfume categories
-      try {
-        const catResponse = await fetch('/perfume-categories.csv');
-        const catText = await catResponse.text();
-        const catData = parseCSV(catText);
-        setPerfumeCategories(catData);
-        
-        // Extract unique categories
-        const allCategories = new Set();
-        catData.forEach(item => {
-          if (item.Category) {
-            item.Category.split(',').forEach(cat => {
-              allCategories.add(cat.trim());
-            });
-          }
-        });
-        setCategories([...allCategories].sort());
-        
-        // Load saharscents database for full perfume details
-        const ssResponse = await fetch('/saharscents-database.csv');
-        const ssText = await ssResponse.text();
-        const ssData = parseCSV(ssText);
-        setSaharscentsData(ssData);
-      } catch (err) {
-        console.error('Error loading category data:', err);
+      if (isMounted) {
+        const data = getDatabaseData();
+        setCategories(data.categories || []);
+        setSaharscentsData(data.saharPerfumes || []);
+        setCategoryMap(data.categoryMap || {});
+        setLoading(false);
       }
-      
-      setLoading(false);
     };
-    
-    loadAll();
+    init();
+    return () => { isMounted = false; };
   }, []);
 
-  const handleSearch = (e) => {
-    const val = e.target.value;
-    setQuery(val);
-    if (val.length > 2) {
-      const results = findPerfume(val);
+  // Debounced search for zero input lag and high frame rates on mobile
+  useEffect(() => {
+    if (!query || query.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      const results = findPerfume(query);
       setSearchResults(results);
       setIsSearching(true);
-    } else {
+    }, 60);
+
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    if (!val || val.trim().length < 2) {
       setSearchResults([]);
       setIsSearching(false);
     }
   };
 
-  const clearSearch = () => {
+  const clearSearch = useCallback(() => {
     setQuery('');
     setSearchResults([]);
     setIsSearching(false);
     setSelectedPerfume(null);
     setRecommendations([]);
-  };
+  }, []);
 
-  const handleSelect = (perfume) => {
+  const handleSelect = useCallback((perfume) => {
     setSelectedPerfume(perfume);
     setQuery(perfume.Perfume);
     setIsSearching(false);
@@ -217,10 +179,10 @@ function App() {
     setCategoryPerfumes([]);
     const recs = getRecommendations(perfume);
     setRecommendations(recs);
-  };
+  }, []);
 
   // Handle category selection
-  const handleCategorySelect = (category) => {
+  const handleCategorySelect = useCallback((category) => {
     setSelectedCategory(category);
     setSelectedPerfume(null);
     setRecommendations([]);
@@ -228,30 +190,22 @@ function App() {
     setQuery('');
     setIsSearching(false);
     
-    // Find all perfumes that match this category
-    const matchingPerfumes = perfumeCategories.filter(item => {
-      const cats = item.Category ? item.Category.split(',').map(c => c.trim()) : [];
-      return cats.includes(category);
+    const catLower = category.toLowerCase().trim();
+    const matching = saharscentsData.filter(ss => {
+      const nameKey = (ss.Name || '').toLowerCase().trim();
+      const cats = categoryMap[nameKey] || [];
+      return cats.includes(catLower);
     });
     
-    // Get full perfume data from saharscents database
-    const fullPerfumeData = matchingPerfumes.map(mp => {
-      const fullData = saharscentsData.find(ss => 
-        ss.Name && mp.Perfume && 
-        ss.Name.toLowerCase().trim() === mp.Perfume.toLowerCase().trim()
-      );
-      return fullData || { Name: mp.Perfume, categories: mp.Category };
-    }).filter(p => p.Name);
-    
-    setCategoryPerfumes(fullPerfumeData);
-  };
+    setCategoryPerfumes(matching);
+  }, [saharscentsData, categoryMap]);
 
-  const clearCategory = () => {
+  const clearCategory = useCallback(() => {
     setSelectedCategory(null);
     setCategoryPerfumes([]);
-  };
+  }, []);
 
-  const handleViewAllPerfumes = () => {
+  const handleViewAllPerfumes = useCallback(() => {
     setShowAllPerfumes(true);
     setSelectedPerfume(null);
     setRecommendations([]);
@@ -259,11 +213,11 @@ function App() {
     setCategoryPerfumes([]);
     setQuery('');
     setIsSearching(false);
-  };
+  }, []);
 
-  const clearAllPerfumes = () => {
+  const clearAllPerfumes = useCallback(() => {
     setShowAllPerfumes(false);
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -289,10 +243,22 @@ function App() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-main)] text-[var(--color-text-primary)] font-sans selection:bg-[var(--color-accent-gold)] selection:text-black pb-20 overflow-x-hidden relative">
       
-      {/* Background Elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-900/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-amber-900/10 rounded-full blur-[120px]" />
+      {/* Background Elements - Hardware accelerated GPU radial gradients */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0, transform: 'translateZ(0)' }}>
+        <div 
+          className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full opacity-60"
+          style={{
+            background: 'radial-gradient(circle, rgba(88, 28, 135, 0.35) 0%, rgba(88, 28, 135, 0) 70%)',
+            transform: 'translate3d(0, 0, 0)'
+          }}
+        />
+        <div 
+          className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full opacity-60"
+          style={{
+            background: 'radial-gradient(circle, rgba(217, 119, 6, 0.25) 0%, rgba(217, 119, 6, 0) 70%)',
+            transform: 'translate3d(0, 0, 0)'
+          }}
+        />
       </div>
 
       <div className="max-w-4xl mx-auto px-4 pt-12 md:pt-24 relative z-10">
@@ -323,7 +289,7 @@ function App() {
         >
           {/* Glow effect */}
           <div 
-            className="absolute inset-0 rounded-2xl opacity-30 blur-xl"
+            className="absolute inset-0 rounded-2xl opacity-30 blur-xl pointer-events-none"
             style={{ background: 'linear-gradient(135deg, rgba(251,191,36,0.3), rgba(168,85,247,0.2))' }}
           />
           
@@ -344,7 +310,7 @@ function App() {
             <input
               type="text"
               value={query}
-              onChange={handleSearch}
+              onChange={handleSearchChange}
               placeholder="Search for a perfume..."
               style={{ 
                 width: '100%',

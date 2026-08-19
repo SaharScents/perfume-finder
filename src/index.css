@@ -27,6 +27,14 @@ body {
   color: var(--color-text-primary);
   overflow-x: hidden;
   line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, input, a {
+  touch-action: manipulation;
 }
 
 .font-playfair {
@@ -39,6 +47,7 @@ body {
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  transform: translateZ(0);
 }
 
 .text-gradient-gold {
